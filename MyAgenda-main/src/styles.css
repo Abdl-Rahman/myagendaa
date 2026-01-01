@@ -1,0 +1,101 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body.dark-mode {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  max-width: 100%;
+  margin: 0;
+  background: #ffffff;
+  padding: 0;
+  border-radius: 0;
+  /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05); */
+}
+
+body.dark-mode .app-container {
+  background: #020617;
+  box-shadow: 0 0 0 1px #1f2937;
+}
+
+/* Layout: sidebar + main */
+.app-shell {
+  display: block;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.app-shell-ltr {
+  flex-direction: row;
+}
+
+.app-shell-rtl {
+  flex-direction: row-reverse;
+}
+
+.app-main {
+  margin-left: 90px;
+  padding: 20px;
+  padding-bottom: 70px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+.lang-btn {
+  border: none;
+  background: #4f46e5;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.lang-btn:hover {
+  opacity: 0.9;
+}
+
+.theme-btn {
+  border: none;
+  background: #e5e7eb;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.theme-btn:hover {
+  background: #d1d5db;
+}
+
+.logout-btn {
+  border: none;
+  background: #ef4444;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+}
+
+body.dark-mode .theme-btn {
+  background: #111827;
+  color: #e5e7eb;
+}
