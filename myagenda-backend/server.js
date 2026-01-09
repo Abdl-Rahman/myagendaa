@@ -8,7 +8,7 @@ const app = express();
 require("dotenv").config();
 
 
-app.use(cors());
+app.use(cors({ origin: "https://myfrontend-url.com" }));
 app.use(express.json());
 
 // ===== Database Connection =====
@@ -190,3 +190,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
+
