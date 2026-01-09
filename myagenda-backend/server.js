@@ -5,15 +5,18 @@ const cors = require("cors");
 
 const app = express();
 
+require("dotenv").config();
+
+
 app.use(cors());
 app.use(express.json());
 
 // ===== Database Connection =====
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "myagenda",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
 });
 
 db.connect((err) => {
@@ -114,15 +117,15 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// ===== TODOS API =====
-app.get("/api/todos", (req, res) => {
+// ===== TODO API =====
+app.get("/api/todo", (req, res) => {
   db.query("SELECT * FROM todos ORDER BY id DESC", (err, rows) => {
     if (err) return res.status(500).json({ message: "error" });
     res.json(rows);
   });
 });
 
-app.post("/api/todos", (req, res) => {
+app.post("/api/todo", (req, res) => {
   const { title } = req.body;
 
   if (!title || !String(title).trim()) {
@@ -139,7 +142,7 @@ app.post("/api/todos", (req, res) => {
   );
 });
 
-app.put("/api/todos/:id", (req, res) => {
+app.put("/api/todo/:id", (req, res) => {
   const { is_completed } = req.body;
 
   db.query(
@@ -152,7 +155,7 @@ app.put("/api/todos/:id", (req, res) => {
   );
 });
 
-app.delete("/api/todos/:id", (req, res) => {
+app.delete("/api/todo/:id", (req, res) => {
   db.query(
     "DELETE FROM todos WHERE id=?",
     [req.params.id],
@@ -162,104 +165,28 @@ app.delete("/api/todos/:id", (req, res) => {
     }
   );
 });
-// ===== NOTES API =====
 
-// GET all notes
-app.get("/api/notes", (req, res) => {
-  db.query("SELECT * FROM notes ORDER BY id DESC", (err, rows) => {
-    if (err) return res.status(500).json({ message: "error" });
-    res.json(rows);
-  });
-});
 
-// POST new note
-app.post("/api/notes", (req, res) => {
-  const { title, content } = req.body;
-
-  const cleanTitle = title ? String(title).trim() : "Note";
-  const cleanContent = content ? String(content).trim() : "";
-
-  if (!cleanContent) {
-    return res.status(400).json({ message: "content is required" });
-  }
+// ===== TOGGLE TODO =====
+app.patch("/api/todo/:id/toggle", (req, res) => {
+  const { id } = req.params;
 
   db.query(
-    "INSERT INTO notes (user_id, title, content) VALUES (1, ?, ?)",
-    [cleanTitle, cleanContent],
-    (err, result) => {
-      if (err) return res.status(500).json({ message: "error" });
-
-      res.status(201).json({
-        id: result.insertId,
-        user_id: 1,
-        title: cleanTitle,
-        content: cleanContent,
-      });
+    "UPDATE todos SET is_completed = NOT is_completed WHERE id = ?",
+    [id],
+    (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "error" });
+      }
+      res.json({ ok: true });
     }
   );
 });
-
-// DELETE note
-app.delete("/api/notes/:id", (req, res) => {
-  db.query("DELETE FROM notes WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ message: "error" });
-    res.json({ ok: true });
-  });
-});
-// ===== EVENTS (CALENDAR) API =====
-
-// GET all events
-app.get("/api/events", (req, res) => {
-  db.query("SELECT * FROM events ORDER BY id DESC", (err, rows) => {
-    if (err) return res.status(500).json({ message: "error" });
-    res.json(rows);
-  });
-});
-
-// POST new event
-app.post("/api/events", (req, res) => {
-  const { dateKey, time, title, description, endTime } = req.body;
-
-  const cleanTitle = title ? String(title).trim() : "";
-  const cleanDesc = description ? String(description).trim() : "";
-
-  if (!dateKey || !time || !cleanTitle) {
-    return res.status(400).json({ message: "dateKey, time, title are required" });
-  }
-
-  // مثال: dateKey = "2026-01-01", time = "14:30"
-  const startDT = `${dateKey} ${time}:00`;
-
-  // endTime اختياري
-  const endDT = endTime ? `${dateKey} ${endTime}:00` : null;
-
-  db.query(
-    "INSERT INTO events (user_id, title, description, start_datetime, end_datetime) VALUES (1, ?, ?, ?, ?)",
-    [cleanTitle, cleanDesc, startDT, endDT],
-    (err, result) => {
-      if (err) return res.status(500).json({ message: "error" });
-
-      // رجّع شكل بسيط للفرونت
-      res.status(201).json({
-        id: result.insertId,
-        dateKey,
-        time,
-        text: cleanTitle,
-      });
-    }
-  );
-});
-
-// DELETE event
-app.delete("/api/events/:id", (req, res) => {
-  db.query("DELETE FROM events WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ message: "error" });
-    res.json({ ok: true });
-  });
-});
-
 
 // ===== Server (لازم آخر شي) =====
-app.listen(5000, "0.0.0.0", () => {
-  console.log("Server running on http://127.0.0.1:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
